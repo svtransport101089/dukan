@@ -17,7 +17,8 @@ const Checkout: React.FC = () => {
     address: ''
   });
 
-  const total = cart.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+  const calculateItemPrice = (item: any) => item.discountPrice !== undefined ? item.discountPrice : item.price;
+  const total = cart.reduce((acc, curr) => acc + (calculateItemPrice(curr) * curr.quantity), 0);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +30,12 @@ const Checkout: React.FC = () => {
       customerName: formData.name,
       customerMobile: formData.mobile,
       address: formData.address,
-      items: cart.map(i => ({ productId: i.id, name: i.name, quantity: i.quantity, price: i.price })),
+      items: cart.map(i => ({ 
+        productId: i.id, 
+        name: i.name, 
+        quantity: i.quantity, 
+        price: calculateItemPrice(i) 
+      })),
       totalAmount: total,
       status: 'Pending Verification',
       createdAt: Date.now()
@@ -38,7 +44,11 @@ const Checkout: React.FC = () => {
     db.createOrder(newOrder);
     
     // Auto-open WhatsApp with Order details
-    const orderItemsText = cart.map(i => `${i.name} x ${i.quantity} = ₹${i.price * i.quantity}`).join('\n');
+    const orderItemsText = cart.map(i => {
+      const p = calculateItemPrice(i);
+      return `${i.name} x ${i.quantity} = ₹${p * i.quantity}`;
+    }).join('\n');
+
     const waMessage = `Hello ${settings.name}, I would like to place an order:
     
 Order ID: ${newOrder.id}
@@ -130,12 +140,15 @@ I am making the payment via Google Pay.`;
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h3 className="font-bold text-gray-800 border-b border-gray-50 pb-4 mb-4">Order Summary</h3>
             <div className="space-y-3">
-              {cart.map(item => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <span className="text-gray-600">{item.name} x {item.quantity}</span>
-                  <span className="font-medium text-gray-800">₹{item.price * item.quantity}</span>
-                </div>
-              ))}
+              {cart.map(item => {
+                const itemPrice = calculateItemPrice(item);
+                return (
+                  <div key={item.id} className="flex justify-between text-sm">
+                    <span className="text-gray-600">{item.name} x {item.quantity}</span>
+                    <span className="font-medium text-gray-800">₹{itemPrice * item.quantity}</span>
+                  </div>
+                );
+              })}
               <div className="border-t border-dashed border-gray-100 pt-3 flex justify-between items-center">
                 <span className="font-bold text-gray-800">Total Amount</span>
                 <span className="font-black text-xl text-[#146eb4]">₹{total}</span>

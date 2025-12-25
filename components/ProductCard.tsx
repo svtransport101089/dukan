@@ -13,6 +13,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const cartItem = cart.find(item => item.id === product.id);
   const quantity = cartItem?.quantity || 0;
 
+  // Logic: product.price is MRP, product.discountPrice is Selling Price (if it exists)
+  const sellingPrice = product.discountPrice !== undefined ? product.discountPrice : product.price;
+  const hasOffer = product.discountPrice !== undefined && product.discountPrice < product.price;
+
   return (
     <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex gap-4">
       <div className="w-24 h-24 flex-shrink-0 relative">
@@ -21,9 +25,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           alt={product.name} 
           className="w-full h-full object-cover rounded-lg"
         />
-        {product.discountPrice && (
-          <span className="absolute top-1 left-1 bg-green-500 text-white text-[8px] px-1.5 py-0.5 rounded font-bold uppercase">
-            Offer
+        {hasOffer && (
+          <span className="absolute top-1 left-1 bg-green-500 text-white text-[8px] px-1.5 py-0.5 rounded font-bold uppercase shadow-sm">
+            Save ₹{product.price - product.discountPrice!}
           </span>
         )}
       </div>
@@ -36,9 +40,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         <div className="flex items-center justify-between mt-2">
           <div className="flex flex-col">
-            <span className="text-base font-bold text-gray-900">₹{product.price}</span>
-            {product.discountPrice && (
-              <span className="text-[10px] text-gray-400 line-through">₹{product.discountPrice}</span>
+            <span className="text-base font-bold text-gray-900">₹{sellingPrice}</span>
+            {hasOffer && (
+              <span className="text-[10px] text-gray-400 line-through">₹{product.price}</span>
             )}
           </div>
 
