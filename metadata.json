@@ -1,0 +1,7 @@
+{
+  "name": "Parthi Store - Dukaan Style eCommerce",
+  "description": "A production-ready, mobile-first eCommerce application with Google Pay UPI integration and a powerful admin dashboard.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
